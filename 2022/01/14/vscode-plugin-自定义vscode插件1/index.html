@@ -10,12 +10,12 @@
   <meta name="description" content="VScode组成结构VSCode 是基于 Electron 构建的，主要由三部分构成：  Electron: UI   Monaco Editor Extension Host   Language Server Protocol &amp; Debug Adapter Protocol   插件生命周期从生命周期上来看，插件编写有三大个部分：  Activation Event：设置插件激活的时">
 <meta property="og:type" content="article">
 <meta property="og:title" content="自定义vscode插件">
-<meta property="og:url" content="https://summeruniq.github.io/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B6-%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/index.html">
+<meta property="og:url" content="https://summeruniq.github.io/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B61/index.html">
 <meta property="og:site_name" content="Welcome to summerUniq Blog">
 <meta property="og:description" content="VScode组成结构VSCode 是基于 Electron 构建的，主要由三部分构成：  Electron: UI   Monaco Editor Extension Host   Language Server Protocol &amp; Debug Adapter Protocol   插件生命周期从生命周期上来看，插件编写有三大个部分：  Activation Event：设置插件激活的时">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-01-14T08:24:00.000Z">
-<meta property="article:modified_time" content="2022-01-17T08:20:05.858Z">
+<meta property="article:modified_time" content="2022-01-17T11:17:29.637Z">
 <meta property="article:author" content="Summer Xia">
 <meta name="twitter:card" content="summary">
   
@@ -66,9 +66,9 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-vscode-plugin-自定义vscode插件-架构分析" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-vscode-plugin-自定义vscode插件1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B6-%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/" class="article-date">
+    <a href="/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B61/" class="article-date">
   <time datetime="2022-01-14T08:24:00.000Z" itemprop="datePublished">2022-01-14</time>
 </a>
     
@@ -109,11 +109,28 @@
 <h3 id="packages-json"><a href="#packages-json" class="headerlink" title="packages.json"></a>packages.json</h3><p>package 中和插件有关的主要内容是如下几个项目，其中 main 是插件代码的入口文件。</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;activationEvents&quot;</span>: [</span><br><span class="line">        <span class="string">&quot;onCommand:extension.helloWorld&quot;</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">&quot;main&quot;</span>: <span class="string">&quot;./out/extension.js&quot;</span>,</span><br><span class="line">    <span class="string">&quot;contributes&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;commands&quot;</span>: [</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">&quot;command&quot;</span>: <span class="string">&quot;extension.helloWorld&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Hello World&quot;</span></span><br><span class="line">            &#125;,</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">&quot;command&quot;</span>: <span class="string">&quot;extension.helloVscode&quot;</span>,</span><br><span class="line">                <span class="attr">&quot;title&quot;</span>: <span class="string">&quot;Hello vscode&quot;</span></span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
 
+<ul>
+<li>activationEvents: 配置插件什么时候被激活， 目前支持下面8种配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">onLanguage:<span class="variable">$&#123;language&#125;</span></span><br><span class="line">onCommand:<span class="variable">$&#123;command&#125;</span></span><br><span class="line">onDebug</span><br><span class="line">workspaceContains:<span class="variable">$&#123;toplevelfilename&#125;</span></span><br><span class="line">onFileSystem:<span class="variable">$&#123;scheme&#125;</span></span><br><span class="line">onView:<span class="variable">$&#123;viewId&#125;</span></span><br><span class="line">onUri</span><br><span class="line">*</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>contributes</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">configuration：设置</span><br><span class="line">commands：命令</span><br><span class="line">menus：菜单</span><br><span class="line">keybindings：快捷键绑定</span><br><span class="line">languages：新语言支持</span><br><span class="line">debuggers：调试</span><br><span class="line">breakpoints：断点</span><br><span class="line">grammars</span><br><span class="line">themes：主题</span><br><span class="line">snippets：代码片段</span><br><span class="line">jsonValidation：自定义JSON校验</span><br><span class="line">views：左侧侧边栏视图</span><br><span class="line">viewsContainers：自定义activitybar</span><br><span class="line">problemMatchers</span><br><span class="line">problemPatterns</span><br><span class="line">taskDefinitions</span><br><span class="line">colors</span><br></pre></td></tr></table></figure>
+
+<h3 id="viscode插件脚手架"><a href="#viscode插件脚手架" class="headerlink" title="viscode插件脚手架"></a>viscode插件脚手架</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">npm install -g yo generator-code</span><br><span class="line">yo code</span><br><span class="line"><span class="comment"># ? What type of extension do you want to create? New Extension (TypeScript)</span></span><br><span class="line"><span class="comment"># ? What&#x27;s the name of your extension? HelloWorld</span></span><br><span class="line"><span class="comment">### Press &lt;Enter&gt; to choose default for all options below ###</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ? What&#x27;s the identifier of your extension? helloworld</span></span><br><span class="line"><span class="comment"># ? What&#x27;s the description of your extension? LEAVE BLANK</span></span><br><span class="line"><span class="comment"># ? Initialize a git repository? Yes</span></span><br><span class="line"><span class="comment"># ? Bundle the source code with webpack? No</span></span><br><span class="line"><span class="comment"># ? Which package manager to use? npm</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ? Do you want to open the new folder with Visual Studio Code? Open with `code`</span></span><br></pre></td></tr></table></figure>
+
+<p>生成插件目录如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// tree -I <span class="string">&quot;node_modules&quot;</span></span><br><span class="line">.</span><br><span class="line">├── CHANGELOG.md</span><br><span class="line">├── README.md</span><br><span class="line">├── out</span><br><span class="line">│   ├── extension.js</span><br><span class="line">│   ├── extension.js.map</span><br><span class="line">│   └── <span class="built_in">test</span></span><br><span class="line">│       ├── runTest.js</span><br><span class="line">│       ├── runTest.js.map</span><br><span class="line">│       └── suite</span><br><span class="line">│           ├── extension.test.js</span><br><span class="line">│           ├── extension.test.js.map</span><br><span class="line">│           ├── index.js</span><br><span class="line">│           └── index.js.map</span><br><span class="line">├── package-lock.json</span><br><span class="line">├── package.json</span><br><span class="line">├── src</span><br><span class="line">│   ├── extension.ts</span><br><span class="line">│   └── <span class="built_in">test</span></span><br><span class="line">│       ├── runTest.ts</span><br><span class="line">│       └── suite</span><br><span class="line">│           ├── extension.test.ts</span><br><span class="line">│           └── index.ts</span><br><span class="line">├── tsconfig.json</span><br><span class="line">└── vsc-extension-quickstart.md</span><br></pre></td></tr></table></figure>
+
+
+
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://summeruniq.github.io/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B6-%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/" data-id="ckyif331f0000rvwo33vecffm" class="article-share-link">Share</a>
+      <a data-url="https://summeruniq.github.io/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B61/" data-id="ckyilgs9w0000x2woaoa234hj" class="article-share-link">Share</a>
       
       
     </footer>
@@ -176,7 +193,7 @@
       <ul>
         
           <li>
-            <a href="/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B6-%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/">自定义vscode插件</a>
+            <a href="/2022/01/14/vscode-plugin-%E8%87%AA%E5%AE%9A%E4%B9%89vscode%E6%8F%92%E4%BB%B61/">自定义vscode插件</a>
           </li>
         
           <li>
